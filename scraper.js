@@ -4,14 +4,16 @@ const LOGIN = 'TON_LOGIN';
 const PASSWORD = 'TON_MOT_DE_PASSE';
 
 async function scrapePlanning() {
-const browser = await puppeteer.launch({
+  const browser = await puppeteer.launch({
     headless: 'new',
     executablePath: '/usr/bin/chromium',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
   });
 
   const page = await browser.newPage();
   
+  await page.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1');
+
   // Intercepter les requêtes API
   const apiCalls = [];
   page.on('response', async response => {
@@ -31,7 +33,6 @@ const browser = await puppeteer.launch({
   console.log('Page chargée, titre:', await page.title());
   console.log('URL actuelle:', page.url());
   
-  // Screenshot pour voir où on en est
   await page.screenshot({ path: '/tmp/keolis1.png' });
   console.log('Screenshot sauvegardé dans /tmp/keolis1.png');
   
@@ -42,3 +43,4 @@ const browser = await puppeteer.launch({
 }
 
 scrapePlanning().catch(console.error);
+
