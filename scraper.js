@@ -4,8 +4,9 @@ const LOGIN = 'TON_LOGIN';
 const PASSWORD = 'TON_MOT_DE_PASSE';
 
 async function scrapePlanning() {
-  const browser = await puppeteer.launch({
+const browser = await puppeteer.launch({
     headless: 'new',
+    executablePath: '/usr/bin/chromium',
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
 
