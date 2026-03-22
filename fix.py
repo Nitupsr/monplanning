@@ -1,6 +1,9 @@
 content = open('/var/www/html/planning.html').read()
-old = "s.date <= ws.replace(/.*/, d => {\n    const dd = new Date(d+'T00:00:00'); dd.setDate(dd.getDate()+6); return dd.toISOString().slice(0,10);\n  })"
-new = "s.date <= (() => { const we = new Date(ws+'T00:00:00'); we.setDate(we.getDate()+6); return we.getFullYear()+'-'+String(we.getMonth()+1).padStart(2,'0')+'-'+String(we.getDate()).padStart(2,'0'); })()"
+old = "const thisMonth = now.toISOString().slice(0,7);"
+new = "const pad = n => String(n).padStart(2,'0'); const todayStr = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate()); const thisMonth = todayStr.slice(0,7);"
 content = content.replace(old, new)
+old2 = "const todayLocal = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,\"0\")}-${String(now.getDate()).padStart(2,\"0\")}`;\n  const ws = getWeekStart(todayLocal);"
+new2 = "const ws = getWeekStart(todayStr);"
+content = content.replace(old2, new2)
 open('/var/www/html/planning.html', 'w').write(content)
-print('OK' if old not in content else 'NOT REPLACED')
+print('OK')
