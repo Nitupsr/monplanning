@@ -940,27 +940,33 @@
       await loadPendingChangesFromAPI();
     }
 
-    async function loadPendingChangesFromAPI() {
-      try {
-        const res = await fetch(`${API}/pending-changes`);
-        const changes = await res.json();
+async function loadPendingChangesFromAPI() {
+  try {
+    const res = await fetch(`${API}/pending-changes`);
+    const changes = await res.json();
 
-        if (!Array.isArray(changes) || changes.length === 0) return;
-        if (document.getElementById('changeModal').classList.contains('open')) return;
+    if (!Array.isArray(changes) || changes.length === 0) return;
 
-        pendingChanges = changes.map(c => ({
-          id: c.id,
-          date: c.date,
-          oldService: c.old_service,
-          newService: c.new_service
-        }));
+    // évite boucle infinie popup
+    if (pendingChanges.length > 0) return;
 
-        currentChangeIdx = 0;
-        openChangeModal(pendingChanges[currentChangeIdx]);
-      } catch (e) {
-        console.error('Erreur chargement pending_changes', e);
-      }
-    }
+    pendingChanges = changes.map(c => ({
+      id: c.id,
+      date: c.date,
+      oldService: c.old_service,
+      newService: c.new_service
+    }));
+
+    currentChangeIdx = 0;
+
+    console.log("POPUP TRIGGERED", pendingChanges);
+
+    openChangeModal(pendingChanges[currentChangeIdx]);
+
+  } catch (e) {
+    console.error('Erreur pending_changes', e);
+  }
+}
 
     async function saveService(s) {
       await fetch(`${API}/services`, {
@@ -1795,7 +1801,17 @@ Retourne uniquement le tableau JSON, rien d'autre.`;
       }
     }
 
-    loadData();
+loadData();
+
+// 🔥 Vérifie les changements après chargement
+setTimeout(() => {
+  loadPendingChangesFromAPI();
+}, 1000);
+
+// 🔥 Vérifie toutes les 30 secondes
+setInterval(() => {
+  loadPendingChangesFromAPI();
+}, 30000);
   </script>
 </body>
 </html>
