@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MonPlanning — Suivi de service</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0d0f14;
+      --bg2: #161923;
+      --bg3: #1e2433;
+      --border: #2a3040;
+      --text: #e8eaf0;
+      --text2: #8892a4;
+      --accent: #4f9cf9;
+      --accent2: #f97b4f;
+      --green: #4fd1a0;
+      --red: #f96060;
+      --yellow: #f9c74f;
+      --purple: #a78bfa;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    :root[data-theme="light"] {
+      --bg: #f0f2f7;
+      --bg2: #ffffff;
+      --bg3: #e8ecf4;
+      --border: #d0d8e8;
+      --text: #1a2035;
+      --text2: #5a6478;
+      --accent: #2563eb;
+      --accent2: #ea580c;
+      --green: #059669;
+      --red: #dc2626;
+      --yellow: #d97706;
+      --purple: #7c3aed;
+      --shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+
+    .logo span { color: var(--text2); font-weight: 400; }
+
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 36px;
+      text-decoration: none;
+    }
+
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.primary:hover { opacity: 0.9; color: #fff; }
+    .btn.full { width: 100%; }
+
+    .theme-toggle {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main { max-width: 920px; margin: 0 auto; padding: 18px 14px 80px; }
+
+    .offline-banner {
+      display: none;
+      background: rgba(249,96,96,0.12);
+      border: 1px solid rgba(249,96,96,0.3);
+      color: var(--red);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(79,156,249,0.18), rgba(79,156,249,0.06));
+      border: 1px solid rgba(79,156,249,0.35);
+      border-radius: 14px;
+      padding: 15px 16px;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .hero-banner.rest {
+      background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(167,139,250,0.05));
+      border-color: rgba(167,139,250,0.35);
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 5px;
+    }
+
+    .hero-main {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 78px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 3px;
+      text-align: center;
+    }
+
+    .capture-card,
+    .search-card,
+    .week-card,
+    .form-card,
+    .sync-card,
+    .permut-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .capture-card { text-align: center; }
+
+    .upload-zone {
+      background: var(--bg3);
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.drag { border-color: var(--accent); }
+
+    .upload-icon { font-size: 28px; margin-bottom: 8px; }
+    .upload-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+    .upload-sub { font-size: 12px; color: var(--text2); text-align: center; }
+    #fileInput { display: none; }
+
+    .ocr-progress {
+      display: none;
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .progress-bar-wrap {
+      background: var(--bg3);
+      border-radius: 999px;
+      height: 6px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.3s;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      min-width: 0;
+      width: 100%;
+      padding: 10px 8px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      white-space: normal;
+      line-height: 1.15;
+      word-break: break-word;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .tab.alert {
+      border-color: rgba(249,96,96,0.35);
+      color: var(--red);
+    }
+
+    .week-nav {
+      display: grid;
+      grid-template-columns: 38px 1fr 38px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .week-nav-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .week-nav-center {
+      width: 100%;
+      min-width: 0;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 34px 9px 10px;
+      border-radius: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      text-align-last: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--text2) 50%),
+        linear-gradient(135deg, var(--text2) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .search-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .service-search-input,
+    .add-code-row input,
+    .add-code-row select,
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      min-width: 0;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .service-search-input:focus,
+    .add-code-row input:focus,
+    .add-code-row select:focus,
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .search-help {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .week-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .week-card:hover { border-color: var(--accent); }
+
+    .week-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text2);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .week-card-main {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .week-card-time {
+      font-family: 'Space Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .search-banner {
+      margin-bottom: 12px;
+      background: rgba(79,156,249,0.1);
+      border: 1px solid rgba(79,156,249,0.25);
+      color: var(--accent);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .service-item,
+    .permut-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 72px minmax(0,1fr) auto;
+      gap: 12px;
+      align-items: center;
+      position: relative;
+    }
+
+    .service-item.type-repos .service-code-main { color: var(--purple); }
+    .service-item.type-conge .service-code-main { color: var(--green); }
+    .service-item.type-maladie .service-code-main { color: var(--red); }
+    .service-item.type-dispo .service-code-main { color: var(--yellow); }
+
+    .service-item.is-today {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--bg2), rgba(79,156,249,0.08));
+    }
+
+    .service-item.type-repos.is-today {
+      border-color: var(--purple);
+      background: linear-gradient(135deg, var(--bg2), rgba(167,139,250,0.1));
+    }
+
+    .service-item.is-today::before {
+      content: "AUJOURD'HUI";
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .service-item.type-repos.is-today::before { background: var(--purple); }
+
+    .service-item.is-past { opacity: 0.58; }
+
+    .service-date {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--text2);
+      text-align: center;
+    }
+
+    .service-date .day {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .service-main { min-width: 0; }
+
+    .service-code {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .service-code-main {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .service-hours {
+      font-size: 13px;
+      color: var(--text2);
+      word-break: break-word;
+    }
+
+    .service-extra {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .service-extra.reason { color: var(--accent2); }
+    .service-extra.note { color: var(--text2); }
+
+    .service-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 62px;
+    }
+
+    .service-duration {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green);
+      text-align: right;
+    }
+
+    .service-actions,
+    .permut-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .icon-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn.edit:hover { border-color: var(--accent); color: var(--accent); }
+    .icon-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-repos { background: rgba(167,139,250,0.15); color: var(--purple); }
+    .badge-conge { background: rgba(79,209,160,0.15); color: var(--green); }
+    .badge-maladie { background: rgba(249,96,96,0.15); color: var(--red); }
+    .badge-dispo { background: rgba(249,199,79,0.15); color: var(--yellow); }
+    .badge-service { background: rgba(79,156,249,0.15); color: var(--accent); }
+    .badge-star { background: rgba(249,199,79,0.2); color: var(--yellow); }
+    .badge-pending { background: rgba(249,199,79,0.2); color: var(--yellow); }
+
+    .history-btn {
+      background: rgba(249,199,79,0.1);
+      border: 1px solid rgba(249,199,79,0.3);
+      color: var(--yellow);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .history-item {
+      background: var(--bg3);
+      border-left: 3px solid var(--accent2);
+      border-radius: 0 8px 8px 0;
+      padding: 8px 12px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .history-item .old { text-decoration: line-through; color: var(--red); }
+    .history-item .new { color: var(--green); }
+
+    .mini-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      min-width: 88px;
+      text-align: center;
+    }
+
+    .mini-btn.done { border-color: rgba(79,209,160,0.35); color: var(--green); }
+    .mini-btn.pending { border-color: rgba(249,199,79,0.35); color: var(--yellow); }
+    .mini-btn.ignore { border-color: rgba(249,96,96,0.35); color: var(--red); }
+
+    .form-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 14px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      color: var(--text2);
+      font-weight: 600;
+    }
+
+    .codes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .code-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .code-key {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .code-label { font-size: 12px; color: var(--text2); flex: 1; }
+
+    .add-code-row {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 1fr auto;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .sync-card.error { border-color: rgba(249,96,96,0.45); }
+    .sync-card.ok { border-color: rgba(79,209,160,0.35); }
+
+    .sync-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      color: var(--text2);
+    }
+
+    .sync-main {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .sync-sub {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .backup-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text2);
+    }
+
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: flex-end;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px 40px;
+      width: 100%;
+      transform: translateY(100%);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 999px;
+      margin: 0 auto 20px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+
+    .preview-img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      max-height: 200px;
+      object-fit: cover;
+    }
+
+    .extracted-list {
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .extracted-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      gap: 8px;
+    }
+
+    .extracted-row:last-child { border-bottom: none; }
+
+    .change-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      padding: 20px;
+    }
+
+    .change-modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .change-modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .change-modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .change-modal-sub {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 16px;
+    }
+
+    .change-diff {
+      background: var(--bg3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 13px;
+    }
+
+    .change-diff .old { color: var(--red); text-decoration: line-through; }
+    .change-diff .new { color: var(--green); margin-top: 4px; }
+
+    .reasons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .reason-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .reason-btn.selected {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(79,156,249,0.1);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 300;
+      transition: transform 0.3s;
+      box-shadow: var(--shadow);
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    @media (max-width: 760px) {
+      .main { padding: 16px 12px 76px; }
+      .form-row { grid-template-columns: 1fr; }
+      .add-code-row { grid-template-columns: 1fr 1fr; }
+      .add-code-row button { grid-column: span 2; min-height: 40px; }
+      .search-top { grid-template-columns: 1fr; }
+      .search-top .btn { width: 100%; }
+      .week-card { flex-direction: column; align-items: flex-start; }
+      .week-card-time { align-self: flex-end; }
+      .service-item,
+      .permut-item {
+        grid-template-columns: 62px 1fr;
+        align-items: start;
+      }
+      .service-side {
+        grid-column: 1 / -1;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 6px;
+      }
+      .permut-actions {
+        grid-column: 1 / -1;
+        justify-content: center;
+        margin-top: 8px;
+      }
+      .mini-btn { min-width: 0; flex: 1; }
+      .tabs { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px; }
+    }
+
+    @media (max-width: 460px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .week-nav { grid-template-columns: 34px 1fr 34px; padding: 8px; }
+      .week-nav-btn { width: 34px; height: 34px; }
+      .week-nav-center { font-size: 11px; padding-right: 28px; }
+      .service-date { min-width: 58px; }
+      .service-date .day { font-size: 16px; }
+      .header-actions { gap: 8px; }
+      .btn { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">MON<span>PLANNING</span></div>
+    <div class="header-actions">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">☀️</button>
+      <button class="btn primary" onclick="openAddModal()">+ Ajouter</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div id="offlineBanner" class="offline-banner">Mode hors ligne — affichage des dernières données enregistrées localement.</div>
+    <div id="topBanner" class="hero-banner" style="display:none;"></div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Cette semaine</div>
+        <div class="stat-value" id="stat-week">0h00</div>
+        <div class="stat-sub" id="stat-week-days">0 service(s)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ce mois</div>
+        <div class="stat-value" id="stat-month">0h00</div>
+        <div class="stat-sub" id="stat-month-days">0 service(s)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Jours repos</div>
+        <div class="stat-value" id="stat-repos" style="color:var(--purple)">0</div>
+        <div class="stat-sub">ce mois</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Jours arrêt maladie</div>
+        <div class="stat-value" id="stat-maladie" style="color:var(--red)">0</div>
+        <div class="stat-sub">ce mois</div>
+      </div>
+    </div>
+
+
+    <div class="tabs">
+      <button class="tab active" id="tab-services-btn" onclick="switchTab('services')">📋 Services</button>
+      <button class="tab" id="tab-permut-btn" onclick="switchTab('permut')">🔄 À permuter</button>
+      <button class="tab" id="tab-stats-btn" onclick="switchTab('stats')">📊 Statistiques</button>
+      <button class="tab" id="tab-codes-btn" onclick="switchTab('codes')">🏷️ Codes</button>
+      <button class="tab" id="tab-capture-btn" onclick="switchTab('capture')">📸 Capture</button>
+      <button class="tab" id="tab-sync-btn" onclick="switchTab('sync')">🛰️ Sync</button>
+    </div>
+
+    <div id="tab-services">
+      <div class="week-nav">
+        <button class="week-nav-btn" onclick="prevWeek()">‹</button>
+        <select class="week-nav-center" id="weekSelect" onchange="goToWeek(this.value)"></select>
+        <button class="week-nav-btn" onclick="nextWeek()">›</button>
+      </div>
+
+      <div class="search-card">
+        <div class="search-top">
+          <input type="text" id="serviceSearch" class="service-search-input" placeholder="Rechercher sur tout l’historique (ex : 190, W19117...)" oninput="handleServiceSearch(this.value)">
+          <button class="btn" onclick="clearServiceSearch()">Effacer</button>
+        </div>
+        <div class="search-help">Recherche globale et partielle sur tous les services. Exemple : <strong>190</strong>.</div>
+      </div>
+
+      <div class="week-card" onclick="goToCurrentWeek()">
+        <div>
+          <div class="week-card-label">📍 Semaine actuelle</div>
+          <div class="week-card-main" id="weekCardLabel">Lundi → Dimanche</div>
+        </div>
+        <div class="week-card-time" id="weekNavTotal">0h00</div>
+      </div>
+
+      <div id="searchBanner" class="search-banner" style="display:none;"></div>
+      <div id="servicesList"></div>
+    </div>
+
+    <div id="tab-permut" style="display:none">
+      <div class="permut-card">
+        <div class="form-title">Services à permuter</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">
+          Sont affichés automatiquement : les services à venir commençant par <strong>W190</strong> ou débutant avant <strong>06:00</strong>.
+        </div>
+        <div id="permutList"></div>
+      </div>
+    </div>
+
+    <div id="tab-stats" style="display:none">
+      <div class="form-card">
+        <div class="form-title">Récapitulatif mensuel</div>
+        <div id="monthlyStats"></div>
+      </div>
+    </div>
+
+    <div id="tab-codes" style="display:none">
+      <div class="form-card">
+        <div class="form-title">Codes de planning</div>
+        <div class="codes-grid" id="codesList"></div>
+
+        <div class="add-code-row">
+          <input type="text" id="newCodeKey" placeholder="Code">
+          <input type="text" id="newCodeLabel" placeholder="Libellé">
+          <select id="newCodeType">
+            <option value="repos">Repos</option>
+            <option value="conge">Congé</option>
+            <option value="maladie">Maladie</option>
+            <option value="dispo">Dispo</option>
+            <option value="service">Service</option>
+          </select>
+          <button onclick="addCode()">+</button>
+        </div>
+      </div>
+    </div>
+
+    
+    <div id="tab-capture" style="display:none">
+      <div class="capture-card">
+      <div class="upload-zone"
+           onclick="document.getElementById('fileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag')"
+           ondragleave="this.classList.remove('drag')"
+           ondrop="handleDrop(event)">
+        <div class="upload-icon">📸</div>
+        <div class="upload-title">Importer une capture</div>
+        <div class="upload-sub">Fonction de secours si besoin</div>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this.files[0])">
+      </div>
+
+      <div class="ocr-progress" id="ocrProgress">
+        <div style="font-size:14px;font-weight:700;" id="ocrStatus">Analyse en cours...</div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+    
+    </div>
+
+    <div id="tab-sync" style="display:none">
+      <div class="sync-card" id="syncCard">
+        <div class="sync-title">État de synchronisation</div>
+        <div class="sync-main" id="syncMain">Chargement...</div>
+        <div class="sync-sub" id="syncSub"></div>
+        <div class="backup-actions">
+          <button class="btn" onclick="exportBackup()">💾 Exporter backup</button>
+          <button class="btn" onclick="document.getElementById('backupImportInput').click()">📥 Importer backup</button>
+          <input type="file" id="backupImportInput" accept=".json,application/json" onchange="importBackupFile(this.files[0])">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modalTitle">Ajouter un service</div>
+
+      <div id="extractedPreview" style="display:none">
+        <img id="previewImg" class="preview-img" alt="">
+        <div class="section-title">Services détectés</div>
+        <div class="extracted-list" id="extractedList"></div>
+        <button class="btn primary full" onclick="importExtracted()">✓ Importer ces services</button>
+        <div style="margin:10px 0;text-align:center;font-size:12px;color:var(--text2)">ou saisir manuellement</div>
+      </div>
+
+      <input type="hidden" id="editId">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="fieldDate">
+        </div>
+        <div class="form-group">
+          <label>Code service</label>
+          <select id="fieldCode" onchange="toggleHours()">
+            <option value="">-- Choisir --</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="hoursFields" class="form-row">
+        <div class="form-group">
+          <label>Heure début</label>
+          <input type="time" id="fieldStart">
+        </div>
+        <div class="form-group">
+          <label>Heure fin</label>
+          <input type="time" id="fieldEnd">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Numéro de service (optionnel)</label>
+        <input type="text" id="fieldServiceNum" placeholder="ex: W19111">
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Note (optionnel)</label>
+        <input type="text" id="fieldNote" placeholder="Remarque...">
+      </div>
+
+      <button class="btn primary full" onclick="saveServiceForm()">Enregistrer</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="noteModal" onclick="if(event.target===this)closeNoteModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">📝 Observation</div>
+      <input type="hidden" id="noteServiceId">
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Observation / Note</label>
+        <textarea id="noteText" rows="4" placeholder="Saisir votre observation..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="closeNoteModal()">Annuler</button>
+        <button class="btn primary" style="flex:2;justify-content:center" onclick="saveNote()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="change-modal-overlay" id="changeModal">
+    <div class="change-modal">
+      <div class="change-modal-title">⚠️ Changement de service détecté</div>
+      <div class="change-modal-sub" id="changeModalDate"></div>
+      <div class="change-diff" id="changeModalDiff"></div>
+      <div style="font-size:12px;color:var(--text2);font-weight:700;margin-bottom:8px">RAISON DU CHANGEMENT</div>
+      <div class="reasons-list" id="reasonsList"></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input type="text" id="customReason" placeholder="Autre raison..." style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;">
+        <button class="btn" onclick="addCustomReason()">+</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1;justify-content:center" onclick="skipChange()">Ignorer</button>
+        <button class="btn primary" style="flex:2;justify-content:center" onclick="confirmChange()">Confirmer le changement</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = 'http://135.125.53.206:3001';
+    const GEMINI_API_KEY = localStorage.getItem('gemini_key') || '';
+
+    const DEFAULT_CODES = [
+      { key: 'RH', label: 'Repos hebdomadaire', type: 'repos' },
+      { key: 'RTT', label: 'Réduction temps travail', type: 'repos' },
+      { key: 'JRTT', label: 'Jour RTT', type: 'repos' },
+      { key: 'JRT', label: 'Jour RTT', type: 'repos' },
+      { key: 'CP', label: 'Congés payés', type: 'conge' },
+      { key: 'CPR', label: 'Congés payé repos', type: 'conge' },
+      { key: 'MAL', label: 'Maladie', type: 'maladie' },
+      { key: 'FORM', label: 'Formation', type: 'service' },
+      { key: 'FORMATION', label: 'Formation', type: 'service' },
+      { key: 'DISPO', label: 'Disponible', type: 'dispo' }
+    ];
+
+    let changeReasons = JSON.parse(localStorage.getItem('changeReasons') || JSON.stringify([
+      'Permutation',
+      'Demande à la GPC'
+    ]));
+    let permutationState = JSON.parse(localStorage.getItem('permutationState') || '{}');
+
+    let services = [];
+    let codes = [];
+    let extractedServices = [];
+    let currentTab = 'services';
+    let currentWeekStart = null;
+    let searchQuery = '';
+
+    let pendingChanges = [];
+    let currentChangeIdx = 0;
+    let selectedReason = '';
+
+    let theme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+
+    const CACHE_KEY = 'monplanning_cache_v3';
+    let offlineMode = false;
+
+    function saveCache() {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        services,
+        codes,
+        permutationState,
+        saved_at: new Date().toISOString()
+      }));
+    }
+
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        services = Array.isArray(data.services) ? data.services : [];
+        codes = Array.isArray(data.codes) && data.codes.length ? data.codes : DEFAULT_CODES;
+        permutationState = data.permutationState || permutationState;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function setOfflineMode(isOffline) {
+      offlineMode = isOffline;
+      const banner = document.getElementById('offlineBanner');
+      if (banner) banner.style.display = isOffline ? 'block' : 'none';
+    }
+
+    function saveChangeReasons() {
+      localStorage.setItem('changeReasons', JSON.stringify(changeReasons));
+    }
+
+    function savePermutationState() {
+      localStorage.setItem('permutationState', JSON.stringify(permutationState));
+    }
+
+    function toggleTheme() {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      document.querySelector('.theme-toggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    if (theme === 'light') {
+      document.querySelector('.theme-toggle').textContent = '🌙';
+    }
+
+    async function loadData() {
+      try {
+        const [sRes, cRes] = await Promise.all([
+          fetch(`${API}/services`),
+          fetch(`${API}/codes`)
+        ]);
+
+        services = await sRes.json();
+        codes = await cRes.json();
+
+        if (codes.length === 0) {
+          for (const c of DEFAULT_CODES) {
+            await fetch(`${API}/codes`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(c)
+            });
+          }
+          codes = DEFAULT_CODES;
+        }
+      } catch (e) {
+        toast('Erreur connexion serveur', 'error');
+        services = [];
+        codes = DEFAULT_CODES;
+      }
+
+      cleanPermutationState();
+      refreshCodeSelect();
+      updateTopBanner();
+      render();
+      renderPermutations();
+      await loadPendingChangesFromAPI();
+      await loadSyncStatus();
+    }
+
+    async function loadPendingChangesFromAPI() {
+      if (offlineMode) return;
+      try {
+        const res = await fetch(`${API}/pending-changes`);
+        const changes = await res.json();
+
+        if (!Array.isArray(changes) || changes.length === 0) return;
+        if (pendingChanges.length > 0) return;
+        if (document.getElementById('changeModal').classList.contains('open')) return;
+
+        pendingChanges = changes.map(c => ({
+          id: c.id,
+          date: c.date,
+          oldService: c.old_service,
+          newService: c.new_service
+        }));
+
+        currentChangeIdx = 0;
+        openChangeModal(pendingChanges[currentChangeIdx]);
+      } catch (e) {
+        console.error('Erreur pending_changes', e);
+      }
+    }
+
+    async function loadSyncStatus() {
+      const btn = document.getElementById('tab-sync-btn');
+      const main = document.getElementById('syncMain');
+      const sub = document.getElementById('syncSub');
+      const card = document.getElementById('syncCard');
+
+      try {
+        const res = await fetch(`${API}/sync-status`);
+        if (!res.ok) throw new Error('sync-status indisponible');
+        const data = await res.json();
+
+        card.classList.remove('error', 'ok');
+        if (data.status === 'error') {
+          btn.classList.add('alert');
+          card.classList.add('error');
+          main.textContent = 'Erreur de synchronisation';
+          sub.textContent = `${data.message || 'Erreur inconnue'}${data.last_sync ? ` — ${formatDateTimeFr(data.last_sync)}` : ''}`;
+        } else {
+          btn.classList.remove('alert');
+          card.classList.add('ok');
+          const when = data.last_sync ? formatDateTimeFr(data.last_sync) : 'date inconnue';
+          main.textContent = `Synchronisé le ${when}`;
+          sub.textContent = `${data.changes ?? 0} changement(s) détecté(s)${data.message ? ` — ${data.message}` : ''}`;
+        }
+      } catch (e) {
+        btn.classList.add('alert');
+        card.classList.remove('ok');
+        card.classList.add('error');
+        main.textContent = 'État de synchronisation indisponible';
+        sub.textContent = 'La route /sync-status n’est pas encore disponible côté serveur.';
+      }
+    }
+
+    async function saveService(s) {
+      if (!offlineMode) {
+        await fetch(`${API}/services`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(s)
+        });
+      }
+      saveCache();
+    }
+    async function deleteServiceApi(id) {
+      if (!offlineMode) await fetch(`${API}/services/${id}`, { method: 'DELETE' });
+      saveCache();
+    }
+    async function saveCode(c) {
+      if (!offlineMode) {
+        await fetch(`${API}/codes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(c)
+        });
+      }
+      saveCache();
+    }
+    async function deleteCodeApi(key) {
+      if (!offlineMode) await fetch(`${API}/codes/${encodeURIComponent(key)}`, { method: 'DELETE' });
+      saveCache();
+    }
+    async function deletePendingChangeApi(id) {
+      await fetch(`${API}/pending-changes/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ['services', 'permut', 'stats', 'codes', 'capture', 'sync'].forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (el) el.style.display = (t === tab ? 'block' : 'none');
+      });
+
+      ['services', 'permut', 'stats', 'codes', 'capture', 'sync'].forEach(t => {
+        const btn = document.getElementById('tab-' + t + '-btn');
+        if (btn) btn.classList.toggle('active', t === tab);
+      });
+
+      if (tab === 'stats') renderStats();
+      if (tab === 'codes') renderCodes();
+      if (tab === 'services') render();
+      if (tab === 'permut') renderPermutations();
+      if (tab === 'sync') loadSyncStatus();
+    }
+
+    function getCode(key) {
+      return codes.find(c => c.key === String(key || '').toUpperCase().trim());
+    }
+
+    function getServiceType(key) {
+      const c = getCode(key);
+      return c ? c.type : 'service';
+    }
+
+    function isRest(key) {
+      const c = getCode(key);
+      return c && ['repos', 'conge', 'maladie'].includes(c.type);
+    }
+
+    function isWorkService(s) {
+      return !isRest(s.code) && !!(s.start && s.end);
+    }
+
+    function calcDuration(start, end) {
+      if (!start || !end) return null;
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+      let mins = (eh * 60 + em) - (sh * 60 + sm);
+      if (mins < 0) mins += 24 * 60;
+      return mins;
+    }
+
+    function formatDuration(mins) {
+      if (mins === null || mins === undefined) return '--';
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${h}h${String(m).padStart(2, '0')}`;
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+      const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      return { day: d.getDate(), weekday: days[d.getDay()], month: months[d.getMonth()] };
+    }
+
+    function formatDateTimeFr(iso) {
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function formatLocalDate(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function getWeekStart(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const day = d.getDay();
+      const diff = (day === 0 ? -6 : 1 - day);
+      d.setDate(d.getDate() + diff);
+      return formatLocalDate(d);
+    }
+
+    function isSameWeek(dateStr, weekStartStr) {
+      return getWeekStart(dateStr) === weekStartStr;
+    }
+
+    function getLocalToday() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    }
+
+    function getCurrentTimeHHMM() {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function addDays(dateStr, days) {
+      const d = new Date(dateStr + 'T00:00:00');
+      d.setDate(d.getDate() + days);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function daysBetween(a, b) {
+      const da = new Date(a + 'T00:00:00');
+      const db = new Date(b + 'T00:00:00');
+      return Math.round((db - da) / 86400000);
+    }
+
+    function prevWeek() {
+      currentWeekStart = addDays(currentWeekStart, -7);
+      render();
+    }
+
+    function nextWeek() {
+      currentWeekStart = addDays(currentWeekStart, 7);
+      render();
+    }
+
+    function goToWeek(ws) {
+      currentWeekStart = ws;
+      render();
+    }
+
+    function getCurrentWeekLabel(ws) {
+      const we = addDays(ws, 6);
+      const isCurrent = ws === getWeekStart(getLocalToday());
+      return `${isCurrent ? '* ' : ''}${ws.slice(8)}/${ws.slice(5,7)} - ${we.slice(8)}/${we.slice(5,7)}`;
+    }
+
+    function buildWeekSelect() {
+      const allWeeks = [...new Set(services.map(s => getWeekStart(s.date)))].sort();
+      const sel = document.getElementById('weekSelect');
+      if (!currentWeekStart) currentWeekStart = getWeekStart(getLocalToday());
+      sel.innerHTML = allWeeks.map(ws => `<option value="${ws}" ${ws===currentWeekStart?'selected':''}>${getCurrentWeekLabel(ws)}</option>`).join('');
+    }
+
+    function handleServiceSearch(value) {
+      searchQuery = value.trim().toLowerCase();
+      render();
+    }
+
+    function clearServiceSearch() {
+      searchQuery = '';
+      document.getElementById('serviceSearch').value = '';
+      render();
+    }
+
+    function getFilteredServices() {
+      if (!searchQuery) return services;
+      return services.filter(s => {
+        const serviceNum = String(s.serviceNum || '').toLowerCase();
+        const code = String(s.code || '').toLowerCase();
+        const note = String(s.note || '').toLowerCase();
+        return serviceNum.includes(searchQuery) || code.includes(searchQuery) || note.includes(searchQuery);
+      }).sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    function updateTopBanner() {
+      const today = getLocalToday();
+      const nowHHMM = getCurrentTimeHHMM();
+      const banner = document.getElementById('topBanner');
+
+      const todayService = services.find(s => s.date === today);
+      const futureServices = services
+        .filter(s => isWorkService(s) && s.date >= today)
+        .sort((a,b) => a.date.localeCompare(b.date) || (a.start||'').localeCompare(b.start||''));
+
+      let title, main, sub, rest = false;
+
+      if (todayService && isWorkService(todayService) && todayService.end && nowHHMM <= todayService.end) {
+        title = 'Service du jour';
+        main = `${todayService.serviceNum || todayService.code} — ${todayService.start} → ${todayService.end}`;
+        sub = 'Aujourd’hui';
+      } else {
+        let next = futureServices.find(s => s.date > today || (s.date === today && s.end && nowHHMM < s.end));
+        if (!next && futureServices.length) next = futureServices[0];
+
+        if (next) {
+          const diff = daysBetween(today, next.date);
+          title = 'Prochain service';
+          main = `${next.serviceNum || next.code} — ${next.start} → ${next.end}`;
+          sub = diff === 0 ? "Aujourd’hui plus tard" : diff === 1 ? 'Demain' : `Dans ${diff} jours`;
+          rest = diff > 0;
+        } else {
+          title = 'Planning';
+          main = 'Aucun service à venir';
+          sub = 'Aucune donnée future disponible';
+          rest = true;
+        }
+      }
+
+      banner.className = `hero-banner ${rest ? 'rest' : ''}`;
+      banner.innerHTML = `
+        <div class="hero-label">${title}</div>
+        <div class="hero-main">${main}</div>
+        <div class="hero-sub">${sub}</div>
+      `;
+      banner.style.display = 'block';
+    }
+
+    function render() {
+      const list = document.getElementById('servicesList');
+      const today = getLocalToday();
+      if (!currentWeekStart) currentWeekStart = getWeekStart(today);
+
+      buildWeekSelect();
+
+      let servicesToRender = [];
+      let totalText = '';
+      let weekLabel = '';
+
+      if (searchQuery) {
+        servicesToRender = getFilteredServices();
+        const banner = document.getElementById('searchBanner');
+        banner.style.display = 'block';
+        banner.textContent = `Recherche active : "${searchQuery}" — ${servicesToRender.length} résultat(s) sur tout l’historique.`;
+        totalText = `${servicesToRender.length} résultat(s)`;
+        weekLabel = 'Recherche globale';
+      } else {
+        document.getElementById('searchBanner').style.display = 'none';
+        const weekEnd = addDays(currentWeekStart, 6);
+        servicesToRender = services.filter(s => s.date >= currentWeekStart && s.date <= weekEnd);
+        const workMins = servicesToRender.filter(s => !isRest(s.code)).reduce((a,s) => a + (calcDuration(s.start,s.end)||0), 0);
+        totalText = workMins ? formatDuration(workMins) : '0h00';
+        weekLabel = `${currentWeekStart.slice(8)}/${currentWeekStart.slice(5,7)} → ${weekEnd.slice(8)}/${weekEnd.slice(5,7)}`;
+      }
+
+      document.getElementById('weekNavTotal').textContent = totalText;
+      document.getElementById('weekCardLabel').textContent = weekLabel;
+
+      if (!servicesToRender.length) {
+        list.innerHTML = `<div class="empty"><div class="empty-icon">🗓️</div><div class="empty-text">${searchQuery ? 'Aucun service trouvé pour cette recherche.' : 'Aucun service cette semaine.'}</div></div>`;
+        updateStats();
+        return;
+      }
+
+      list.innerHTML = [...servicesToRender]
+        .sort((a,b)=>a.date.localeCompare(b.date))
+        .map(s => {
+        const fd = formatDate(s.date);
+        const type = getServiceType(s.code);
+        const dur = calcDuration(s.start, s.end);
+        const isRestDay = isRest(s.code);
+        const isPast = s.date < today;
+        const isToday = s.date === today;
+        return `
+          <div class="service-item ${isPast ? 'is-past' : ''} ${isToday ? 'is-today' : ''} type-${type}">
+            <div class="service-date">
+              <span class="weekday">${fd.weekday}</span>
+              <span>${fd.day}</span>
+              <span class="monthline">${fd.month}</span>
+            </div>
+            <div class="service-main">
+              <div class="service-code">
+                <span class="service-code-main">${s.serviceNum || s.code}</span>
+                <span class="badge ${badgeClass(type)}">${s.code}</span>
+                ${s.modified ? `<span class="badge badge-star">⭐ modifié</span>` : ''}
+              </div>
+              <div class="service-hours">${s.start && s.end ? `${s.start} → ${s.end}` : ((getCode(s.code)||{}).label || s.code)}</div>
+              ${s.changeReason ? `<div class="service-extra reason">↺ ${s.changeReason}</div>` : ''}
+              ${s.note ? `<div class="service-extra note">${s.note}</div>` : ''}
+              ${s.history && s.history.length ? `
+                <button class="history-btn" onclick="toggleHistory('${s.id}')">📋 Voir historique (${s.history.length})</button>
+                <div id="hist-${s.id}" style="display:none">
+                  ${s.history.map(h => `<div class="history-item">Le ${h.date}${h.reason ? ` — ${h.reason}`:''} : <span class="old">${h.old}</span> → <span class="new">${h.new}</span></div>`).join('')}
+                </div>` : ''}
+            </div>
+            <div class="service-side">
+              <div class="service-duration">${isRestDay ? '—' : formatDuration(dur)}</div>
+              <div class="service-actions">
+                <button class="icon-btn" onclick="quickNote('${s.id}')" title="Note">📝</button>
+                <button class="icon-btn edit" onclick="editService('${s.id}')" title="Modifier">✏️</button>
+                <button class="icon-btn" onclick="deleteService('${s.id}')" title="Supprimer">🗑️</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      updateStats();
+    }
+
+    function updateStats() {
+      const today = getLocalToday();
+      const thisMonth = today.slice(0,7);
+      const ws = getWeekStart(today);
+
+      const monthServices = services.filter(s => s.date.startsWith(thisMonth));
+      const weekServices = services.filter(s => isSameWeek(s.date, ws));
+
+      const workMonth = monthServices.filter(s => !isRest(s.code));
+      const workWeek = weekServices.filter(s => !isRest(s.code));
+
+      const totalMonth = workMonth.reduce((a,s)=>a+(calcDuration(s.start,s.end)||0),0);
+      const totalWeek = workWeek.reduce((a,s)=>a+(calcDuration(s.start,s.end)||0),0);
+
+      document.getElementById('stat-week').textContent = formatDuration(totalWeek);
+      document.getElementById('stat-week-days').textContent = `${workWeek.length} service(s)`;
+      document.getElementById('stat-month').textContent = formatDuration(totalMonth);
+      document.getElementById('stat-month-days').textContent = `${workMonth.length} service(s)`;
+      document.getElementById('stat-repos').textContent = monthServices.filter(s => getServiceType(s.code)==='repos').length;
+      document.getElementById('stat-maladie').textContent = monthServices.filter(s => getServiceType(s.code)==='maladie').length;
+    }
+
+    function renderStats() {
+      const byMonth = {};
+      services.forEach(s => {
+        const m = s.date.slice(0, 7);
+        if (!byMonth[m]) byMonth[m] = [];
+        byMonth[m].push(s);
+      });
+
+      const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      let html = '';
+
+      Object.keys(byMonth).sort((a,b)=>b.localeCompare(a)).forEach(m => {
+        const items = byMonth[m];
+        const work = items.filter(s => !isRest(s.code));
+        const total = work.reduce((a,s)=>a+(calcDuration(s.start,s.end)||0),0);
+        const repos = items.filter(s => getServiceType(s.code)==='repos').length;
+        const conge = items.filter(s => getServiceType(s.code)==='conge').length;
+        const mal = items.filter(s => getServiceType(s.code)==='maladie').length;
+        const dispo = items.filter(s => getServiceType(s.code)==='dispo').length;
+        const [year, monthNum] = m.split('-');
+
+        html += `
+          <div style="margin-bottom:16px">
+            <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">${months[parseInt(monthNum,10)-1]} ${year}</div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+              <div style="background:var(--bg3);border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:var(--text2);margin-bottom:3px">TEMPS TRAVAILLÉ</div>
+                <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--accent)">${formatDuration(total)}</div>
+                <div style="font-size:11px;color:var(--text2)">${work.length} services</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:var(--text2);margin-bottom:3px">JOURS</div>
+                <div style="font-size:12px;margin-top:2px">
+                  ${repos ? `<span style="color:var(--purple)">⬤ ${repos} repos</span><br>`:''}
+                  ${conge ? `<span style="color:var(--green)">⬤ ${conge} congés</span><br>`:''}
+                  ${mal ? `<span style="color:var(--red)">⬤ ${mal} maladie</span><br>`:''}
+                  ${dispo ? `<span style="color:var(--yellow)">⬤ ${dispo} dispo</span>`:''}
+                </div>
+              </div>
+            </div>
+          </div>`;
+      });
+
+      document.getElementById('monthlyStats').innerHTML = html || '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Aucune donnée pour l’instant.</div></div>';
+    }
+
+    function badgeClass(type) {
+      return {
+        repos: 'badge-repos',
+        conge: 'badge-conge',
+        maladie: 'badge-maladie',
+        dispo: 'badge-dispo',
+        service: 'badge-service'
+      }[type] || 'badge-service';
+    }
+
+    function renderCodes() {
+      const list = document.getElementById('codesList');
+      const colors = { repos:'var(--purple)', conge:'var(--green)', maladie:'var(--red)', dispo:'var(--yellow)', service:'var(--accent)' };
+      list.innerHTML = codes.map((c,i)=>`
+        <div class="code-item">
+          <span class="code-key" style="color:${colors[c.type] || 'var(--accent)'}">${c.key}</span>
+          <span class="code-label">${c.label}</span>
+          <button class="icon-btn" onclick="deleteCode(${i})" title="Supprimer">×</button>
+        </div>
+      `).join('');
+      refreshCodeSelect();
+    }
+
+    function getPermutationCandidates() {
+      const today = getLocalToday();
+      return services
+        .filter(s => s.date >= today && isWorkService(s))
+        .filter(s => String(s.serviceNum||'').startsWith('W190') || (s.start && s.start < '06:00'))
+        .filter(s => {
+          const st = permutationState[s.id];
+          return st !== 'done' && st !== 'ignored';
+        })
+        .sort((a,b)=>a.date.localeCompare(b.date) || (a.start||'').localeCompare(b.start||''));
+    }
+
+    function cleanPermutationState() {
+      const candidateIds = new Set(
+        services.filter(s => s.date >= getLocalToday() && isWorkService(s) && (String(s.serviceNum||'').startsWith('W190') || (s.start && s.start < '06:00'))).map(s => s.id)
+      );
+      Object.keys(permutationState).forEach(id => {
+        if (!candidateIds.has(id)) delete permutationState[id];
+      });
+      savePermutationState();
+    }
+
+    function setPermutationState(id, state) {
+      permutationState[id] = state;
+      savePermutationState();
+      saveCache();
+      renderPermutations();
+    }
+
+    function renderPermutations() {
+      const items = getPermutationCandidates();
+      const list = document.getElementById('permutList');
+
+      if (!items.length) {
+        list.innerHTML = `<div class="empty"><div class="empty-icon">🔄</div><div class="empty-text">Aucun service à permuter pour le moment.</div></div>`;
+        return;
+      }
+
+      list.innerHTML = items.map(s => {
+        const fd = formatDate(s.date);
+        const state = permutationState[s.id] || '';
+        return `
+          <div class="permut-item">
+            <div class="service-date">
+              <span class="weekday">${fd.weekday}</span>
+              <span>${fd.day}</span>
+              <span class="monthline">${fd.month}</span>
+            </div>
+            <div class="service-main">
+              <div class="service-code">
+                <span class="service-code-main">${s.serviceNum || s.code}</span>
+                <span class="badge badge-service">${s.code}</span>
+                ${state === 'pending' ? `<span class="badge badge-pending">En attente</span>` : ''}
+              </div>
+              <div class="service-hours">${s.start} → ${s.end}</div>
+              <div class="service-extra note">${String(s.serviceNum||'').startsWith('W190') ? 'Critère : W190' : 'Critère : début avant 06:00'}</div>
+            </div>
+            <div class="permut-actions">
+              <button class="mini-btn done" onclick="setPermutationState('${s.id}','done')">Permuté</button>
+              <button class="mini-btn pending" onclick="setPermutationState('${s.id}','pending')">En attente</button>
+              <button class="mini-btn ignore" onclick="setPermutationState('${s.id}','ignored')">Ignorer</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function refreshCodeSelect() {
+      const sel = document.getElementById('fieldCode');
+      const val = sel.value;
+      sel.innerHTML = '<option value="">-- Choisir --</option>' + codes.map(c => `<option value="${c.key}" ${c.key===val?'selected':''}>${c.key} — ${c.label}</option>`).join('');
+    }
+
+    function goToCurrentWeek() {
+      currentWeekStart = getWeekStart(getLocalToday());
+      render();
+    }
+
+    function quickNote(id) {
+      const s = services.find(x => x.id === id);
+      if (!s) return;
+      document.getElementById('noteServiceId').value = id;
+      document.getElementById('noteText').value = s.note || '';
+      document.getElementById('noteModal').classList.add('open');
+    }
+
+    function closeNoteModal() {
+      document.getElementById('noteModal').classList.remove('open');
+    }
+
+    async function saveNote() {
+      const id = document.getElementById('noteServiceId').value;
+      const note = document.getElementById('noteText').value.trim();
+      const s = services.find(x => x.id === id);
+      if (!s) return;
+      s.note = note;
+      await saveService(s);
+      saveCache();
+      render();
+      closeNoteModal();
+      toast('Observation enregistrée');
+    }
+
+    function toggleHistory(id) {
+      const el = document.getElementById('hist-' + id);
+      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function openChangeModal(change) {
+      selectedReason = '';
+      const fd = formatDate(change.newService.date);
+      document.getElementById('changeModalDate').textContent = `${fd.weekday} ${fd.day} ${fd.month}`;
+      const oldStr = `${change.oldService.serviceNum || change.oldService.code} ${change.oldService.start || ''} ${change.oldService.end ? '→ ' + change.oldService.end : ''}`.trim();
+      const newStr = `${change.newService.serviceNum || change.newService.code} ${change.newService.start || ''} ${change.newService.end ? '→ ' + change.newService.end : ''}`.trim();
+      document.getElementById('changeModalDiff').innerHTML = `<div class="old">Avant : ${oldStr}</div><div class="new">Après : ${newStr}</div>`;
+      document.getElementById('reasonsList').innerHTML = changeReasons.map(r => `<button class="reason-btn" onclick="selectReason('${r.replace(/'/g, "\\'")}', this)">${r}</button>`).join('');
+      document.getElementById('customReason').value = '';
+      document.getElementById('changeModal').classList.add('open');
+    }
+
+    function selectReason(reason, btn) {
+      selectedReason = reason;
+      document.querySelectorAll('.reason-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function addCustomReason() {
+      const val = document.getElementById('customReason').value.trim();
+      if (!val) return;
+      if (!changeReasons.includes(val)) {
+        changeReasons.push(val);
+        saveChangeReasons();
+      }
+      selectedReason = val;
+      document.getElementById('customReason').value = '';
+      document.getElementById('reasonsList').innerHTML += '';
+      document.querySelectorAll('.reason-btn').forEach(b => b.classList.remove('selected'));
+    }
+
+    async function confirmChange() {
+      if (!selectedReason) return toast('Choisis une raison', 'error');
+
+      const change = pendingChanges[currentChangeIdx];
+      const old = services.find(s => s.date === change.newService.date);
+      if (!old) return toast('Service introuvable pour cette date', 'error');
+
+      const oldStr = `${old.serviceNum || old.code} ${old.start || ''} ${old.end ? '→ ' + old.end : ''}`.trim();
+      const newStr = `${change.newService.serviceNum || change.newService.code} ${change.newService.start || ''} ${change.newService.end ? '→ ' + change.newService.end : ''}`.trim();
+      let history = Array.isArray(old.history) ? old.history : [];
+      history.push({ date: new Date().toLocaleDateString('fr-FR'), old: oldStr, new: newStr, reason: selectedReason });
+
+      old.code = change.newService.code;
+      old.start = change.newService.start;
+      old.end = change.newService.end;
+      old.serviceNum = change.newService.serviceNum;
+      old.modified = 1;
+      old.changeReason = selectedReason;
+      old.history = history;
+
+      await saveService(old);
+      await deletePendingChangeApi(change.id);
+
+      document.getElementById('changeModal').classList.remove('open');
+      currentChangeIdx++;
+
+      if (currentChangeIdx < pendingChanges.length) {
+        openChangeModal(pendingChanges[currentChangeIdx]);
+      } else {
+        pendingChanges = [];
+        currentChangeIdx = 0;
+        await loadData();
+        toast('Changement(s) enregistré(s) ✓');
+      }
+    }
+
+    async function skipChange() {
+      const change = pendingChanges[currentChangeIdx];
+      if (change?.id) await deletePendingChangeApi(change.id);
+
+      document.getElementById('changeModal').classList.remove('open');
+      currentChangeIdx++;
+
+      if (currentChangeIdx < pendingChanges.length) {
+        openChangeModal(pendingChanges[currentChangeIdx]);
+      } else {
+        pendingChanges = [];
+        currentChangeIdx = 0;
+        await loadData();
+      }
+    }
+
+    async function addCode() {
+      const key = document.getElementById('newCodeKey').value.trim().toUpperCase();
+      const label = document.getElementById('newCodeLabel').value.trim();
+      const type = document.getElementById('newCodeType').value;
+      if (!key || !label) return toast('Code et libellé requis', 'error');
+      if (codes.find(c => c.key === key)) return toast('Code déjà existant', 'error');
+      const c = { key, label, type };
+      await saveCode(c);
+      codes.push(c);
+      saveCache();
+      document.getElementById('newCodeKey').value = '';
+      document.getElementById('newCodeLabel').value = '';
+      renderCodes();
+      toast(`Code ${key} ajouté`);
+    }
+
+    async function deleteCode(i) {
+      const c = codes[i];
+      await deleteCodeApi(c.key);
+      codes.splice(i, 1);
+      saveCache();
+      renderCodes();
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'Ajouter un service';
+      document.getElementById('editId').value = '';
+      document.getElementById('fieldDate').value = getLocalToday();
+      document.getElementById('fieldCode').value = '';
+      document.getElementById('fieldStart').value = '';
+      document.getElementById('fieldEnd').value = '';
+      document.getElementById('fieldServiceNum').value = '';
+      document.getElementById('fieldNote').value = '';
+      document.getElementById('extractedPreview').style.display = 'none';
+      refreshCodeSelect();
+      toggleHours();
+      document.getElementById('addModal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('addModal').classList.remove('open');
+    }
+
+    function toggleHours() {
+      const code = document.getElementById('fieldCode').value;
+      const c = getCode(code);
+      const show = !c || c.type === 'service' || c.type === 'dispo';
+      document.getElementById('hoursFields').style.display = show ? 'grid' : 'none';
+    }
+
+    function editService(id) {
+      const s = services.find(x => x.id === id);
+      if (!s) return;
+      document.getElementById('modalTitle').textContent = 'Modifier le service';
+      document.getElementById('editId').value = id;
+      document.getElementById('fieldDate').value = s.date;
+      refreshCodeSelect();
+      document.getElementById('fieldCode').value = s.code;
+      document.getElementById('fieldStart').value = s.start || '';
+      document.getElementById('fieldEnd').value = s.end || '';
+      document.getElementById('fieldServiceNum').value = s.serviceNum || '';
+      document.getElementById('fieldNote').value = s.note || '';
+      document.getElementById('extractedPreview').style.display = 'none';
+      toggleHours();
+      document.getElementById('addModal').classList.add('open');
+    }
+
+    async function saveServiceForm() {
+      const date = document.getElementById('fieldDate').value;
+      const code = document.getElementById('fieldCode').value;
+      const start = document.getElementById('fieldStart').value;
+      const end = document.getElementById('fieldEnd').value;
+      const serviceNum = document.getElementById('fieldServiceNum').value.trim();
+      const note = document.getElementById('fieldNote').value.trim();
+      const editId = document.getElementById('editId').value;
+
+      if (!date || !code) return toast('Date et code requis', 'error');
+
+      let s;
+      if (editId) {
+        const old = services.find(x => x.id === editId);
+        const oldStr = `${old.code} ${old.start || ''}-${old.end || ''}`.trim();
+        const newStr = `${code} ${start || ''}-${end || ''}`.trim();
+
+        if (oldStr !== newStr) {
+          if (!old.history) old.history = [];
+          old.history.push({ date: new Date().toLocaleDateString('fr-FR'), old: oldStr, new: newStr });
+          old.modified = true;
+        }
+        old.date = date;
+        old.code = code;
+        old.start = start;
+        old.end = end;
+        old.serviceNum = serviceNum;
+        old.note = note;
+        s = old;
+      } else {
+        s = {
+          id: Date.now().toString(),
+          date,
+          code,
+          start,
+          end,
+          serviceNum,
+          note,
+          modified: false,
+          history: []
+        };
+        services.push(s);
+      }
+
+      await saveService(s);
+      cleanPermutationState();
+      saveCache();
+      updateTopBanner();
+      render();
+      renderPermutations();
+      closeModal();
+      toast(editId ? 'Service modifié' : 'Service ajouté');
+    }
+
+    async function deleteService(id) {
+      if (!confirm('Supprimer ce service ?')) return;
+      await deleteServiceApi(id);
+      services = services.filter(s => s.id !== id);
+      delete permutationState[id];
+      savePermutationState();
+      saveCache();
+      updateTopBanner();
+      render();
+      renderPermutations();
+      toast('Service supprimé');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) handleFile(file);
+    }
+
+    function handleFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('previewImg').src = e.target.result;
+        runOCR(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function runOCR(imgSrc) {
+      if (!GEMINI_API_KEY) {
+        const key = prompt("Entre ta clé API Gemini (sera sauvegardée localement) :");
+        if (!key) return toast("Clé API requise pour l'analyse", 'error');
+        localStorage.setItem('gemini_key', key);
+        location.reload();
+        return;
+      }
+
+      const prog = document.getElementById('ocrProgress');
+      const bar = document.getElementById('progressBar');
+      const status = document.getElementById('ocrStatus');
+      prog.style.display = 'block';
+      status.textContent = 'Envoi à Gemini...';
+      bar.style.width = '30%';
+
+      try {
+        const base64 = imgSrc.split(',')[1];
+        const mimeType = imgSrc.split(';')[0].split(':')[1];
+        const codesList = codes.map(c => `${c.key} = ${c.label}`).join(', ');
+
+        const prompt = `Tu es un assistant qui extrait des données de planning de travail depuis une capture d'écran d'une app mobile.
+
+Voici les codes connus : ${codesList}
+Les codes W suivi de chiffres (ex: W19111) sont des numéros de service avec heure début et fin.
+
+Extrait TOUS les jours visibles dans cette image et retourne UNIQUEMENT un JSON valide, sans texte avant ou après, au format :
+[
+  {
+    "date": "2026-03-16",
+    "code": "RH",
+    "serviceNum": "",
+    "start": "",
+    "end": ""
+  },
+  {
+    "date": "2026-03-18",
+    "code": "SERVICE",
+    "serviceNum": "W19111",
+    "start": "06:10",
+    "end": "14:14"
+  }
+]
+
+Pour les jours de repos/congés, laisse start et end vides.
+Pour les services avec heures, remplis start et end au format HH:MM.
+Le serviceNum contient le code Wxxx si présent, sinon vide.
+Retourne uniquement le tableau JSON, rien d'autre.`;
+
+        bar.style.width = '60%';
+        status.textContent = 'Analyse en cours...';
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: mimeType, data: base64 } }
+                ]
+              }]
+            })
+          }
+        );
+
+        bar.style.width = '90%';
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error?.message || 'Erreur API');
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        bar.style.width = '100%';
+        prog.style.display = 'none';
+
+        const clean = text.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(clean);
+        if (!Array.isArray(parsed) || parsed.length === 0) return toast("Aucun service détecté dans l'image", 'error');
+        parseGeminiResult(parsed, imgSrc);
+      } catch (e) {
+        prog.style.display = 'none';
+        toast('Erreur : ' + e.message, 'error');
+      }
+    }
+
+    function parseGeminiResult(results, imgSrc) {
+      extractedServices = results.map(r => ({
+        date: r.date,
+        code: r.code || 'SERVICE',
+        serviceNum: r.serviceNum || '',
+        start: r.start || '',
+        end: r.end || ''
+      }));
+
+      if (!extractedServices.length) return toast('Aucun service détecté', 'error');
+
+      document.getElementById('extractedList').innerHTML = extractedServices.map(r => {
+        const fd = formatDate(r.date);
+        return `
+          <div class="extracted-row">
+            <span>${fd.weekday} ${fd.day} ${fd.month}</span>
+            <span style="font-family:'Space Mono',monospace;color:var(--accent)">${r.serviceNum || r.code}</span>
+            <span style="color:var(--text2)">${r.start && r.end ? `${r.start}-${r.end}` : '—'}</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('previewImg').src = imgSrc;
+      document.getElementById('extractedPreview').style.display = 'block';
+      refreshCodeSelect();
+      document.getElementById('addModal').classList.add('open');
+      toast(`${extractedServices.length} service(s) détecté(s) ✓`);
+    }
+
+    async function importExtracted() {
+      let added = 0;
+      let skipped = 0;
+      pendingChanges = [];
+      currentChangeIdx = 0;
+
+      for (const e of extractedServices) {
+        const existing = services.find(s => s.date === e.date);
+        if (existing) {
+          const oldStr = `${existing.serviceNum || existing.code}${existing.start || ''}${existing.end || ''}`;
+          const newStr = `${e.serviceNum || e.code}${e.start || ''}${e.end || ''}`;
+          if (oldStr !== newStr) pendingChanges.push({ oldService: existing, newService: e, id: `manual-${e.date}` });
+          else skipped++;
+          continue;
+        }
+
+        const s = {
+          id: Date.now().toString() + Math.random(),
+          date: e.date,
+          code: e.code,
+          start: e.start,
+          end: e.end,
+          serviceNum: e.serviceNum,
+          note: '',
+          modified: false,
+          history: [],
+          changeReason: ''
+        };
+
+        await saveService(s);
+        services.push(s);
+        added++;
+      }
+
+      cleanPermutationState();
+      saveCache();
+      updateTopBanner();
+
+      if (pendingChanges.length > 0) {
+        closeModal();
+        openChangeModal(pendingChanges[0]);
+        if (added > 0) toast(`${added} service(s) ajouté(s)`);
+      } else {
+        render();
+        renderPermutations();
+        closeModal();
+        toast(`${added} service(s) importé(s)${skipped ? `, ${skipped} inchangé(s)` : ''}`);
+      }
+    }
+
+    loadData();
+    setTimeout(() => { loadPendingChangesFromAPI(); }, 1000);
+    setInterval(() => { loadPendingChangesFromAPI(); loadSyncStatus(); }, 30000);
+  </script>
+</body>
+</html>
